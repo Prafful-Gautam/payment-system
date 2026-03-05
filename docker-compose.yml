@@ -10,26 +10,27 @@ services:
       - .env
     environment:
       NODE_ENV: production
-      DB_HOST: mysql
+      DB_HOST: postgres
       REDIS_HOST: redis
     depends_on:
-      - mysql
+      - postgres
       - redis
     restart: unless-stopped
     networks:
       - payment-network
 
-  mysql:
-    image: mysql:8.0
-    container_name: payment-mysql
+  postgres:
+    image: postgres:16-alpine
+    container_name: payment-postgres
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres-data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
     ports:
-      - "3306:3306"
+      - "5432:5432"
     networks:
       - payment-network
 
@@ -58,7 +59,7 @@ services:
   #     - payment-network
 
 volumes:
-  mysql-data:
+  postgres-data:
   redis-data:
 
 networks:

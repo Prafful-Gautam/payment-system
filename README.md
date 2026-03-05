@@ -1,12 +1,12 @@
 # paymentflow
 
-Multi-payment service with **wallet + gateway (Stripe/Razorpay) mixed payments**, backed by **MySQL** (transactions/wallet) and **Redis** (rate limiting).
+Multi-payment service with **wallet + gateway (Stripe/Razorpay) mixed payments**, backed by **PostgreSQL** (transactions/wallet) and **Redis** (rate limiting).
 
 ## Tech stack
 
 - Node.js + TypeScript
 - Express
-- TypeORM + MySQL
+- TypeORM + PostgreSQL
 - Redis (rate limit store)
 - Stripe + Razorpay SDKs
 
@@ -39,7 +39,7 @@ flowchart TD
 
   %% Infra
   subgraph DATA[Data Stores]
-    MySQL[(MySQL)]
+    Postgres[(PostgreSQL)]
     Redis[(Redis)]
   end
 
@@ -49,8 +49,8 @@ flowchart TD
   RL --> PC
   PC -->|initiatePayment| PaySvc
   PaySvc -->|read balance optional| WalSvc
-  WalSvc -->|SELECT wallet| MySQL
-  PaySvc -->|create transaction| MySQL
+  WalSvc -->|SELECT wallet| Postgres
+  PaySvc -->|create transaction| Postgres
   PaySvc -->|createPaymentIntent| GF
   GF --> SA
   GF --> RA
@@ -61,15 +61,15 @@ flowchart TD
   PC -->|processMixedPayment| PaySvc
   PaySvc -->|holdAmount if wallet_amount > 0| WalSvc
   PaySvc -->|commit wallet hold| WalSvc
-  WalSvc -->|UPDATE wallet + INSERT wallet_txn| MySQL
-  PaySvc -->|UPDATE payment status| MySQL
+  WalSvc -->|UPDATE wallet + INSERT wallet_txn| Postgres
+  PaySvc -->|UPDATE payment status| Postgres
 
   %% Webhooks async status updates
   Stripe -->|POST /webhooks/stripe| Routes --> WC
   Razorpay -->|POST /webhooks/razorpay| Routes --> WC
   WC -->|verify signature| WC
-  WC -->|updatePaymentStatus / processRefund| PaySvc --> MySQL
-  WC -->|logPaymentEvent| AuditSvc --> MySQL
+  WC -->|updatePaymentStatus / processRefund| PaySvc --> Postgres
+  WC -->|logPaymentEvent| AuditSvc --> Postgres
 
   %% Rate limiter storage
   RL -->|"INCR / EXPIRE"| Redis
@@ -129,10 +129,10 @@ NODE_ENV=development
 ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 LOG_LEVEL=info
 
-# MySQL
+# PostgreSQL
 DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
+DB_PORT=5432
+DB_USER=postgres
 DB_PASSWORD=your_db_password
 DB_NAME=payment_system
 
@@ -168,7 +168,7 @@ npm run dev
 This repo includes `docker-compose.yml` with:
 
 - `payment-service` (this app)
-- `mysql`
+- `postgres`
 - `redis`
 - `nginx` (optional reverse proxy)
 

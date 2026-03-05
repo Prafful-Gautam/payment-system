@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import express, { Application } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { createPaymentRoutes, createWalletRoutes, createWebhookRoutes } from './routes';
 import { errorHandler, requestLogger } from './middleware';
 import { PaymentController, WebhookController } from './controllers';
@@ -14,6 +14,7 @@ import { GatewayFactory } from './services/gateway-factory.service';
 import { logger } from './utils/logger';
 import { Wallet, WalletTransaction, PaymentTransaction, AuditLog } from '@entities/index';
 import { PaymentRepository } from '@repositories/payment.repository';
+import { config } from '@config/index';
 
 export class PaymentApplication {
   private app: Application;
@@ -21,17 +22,7 @@ export class PaymentApplication {
 
   constructor() {
     this.app = express();
-    this.dataSource = new DataSource({
-      type: 'mysql',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '3306'),
-      username: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME || 'payment_system',
-      entities: ['src/entities/**/*.entity.ts'],
-      synchronize: false, // Use migrations in production
-      logging: process.env.NODE_ENV === 'development',
-    });
+    this.dataSource = new DataSource(config.database as DataSourceOptions);
   }
 
   async initialize(): Promise<void> {

@@ -10,11 +10,15 @@ export const config = {
   },
 
   database: {
+    type: 'postgres',
     host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '3306'),
-    username: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    username: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME || 'payment_system',
+    entities: ['src/entities/**/*.entity.ts'],
+    synchronize: false, // Use migrations in production
+    logging: process.env.NODE_ENV === 'development',
   },
 
   redis: {
