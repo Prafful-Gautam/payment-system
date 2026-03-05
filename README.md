@@ -24,9 +24,9 @@ flowchart TD
 
   %% Payment service internals
   subgraph SVC[Payment Service (Express)]
-    Routes[Routes\n/api/v1/payments\n/api/v1/wallet\n/webhooks]
-    Auth[Auth Middleware\nJWT Bearer]
-    RL[Rate Limiter\nRedis store]
+    Routes["Routes<br/>/api/v1/payments<br/>/api/v1/wallet<br/>/webhooks"]
+    Auth["Auth Middleware<br/>JWT Bearer"]
+    RL["Rate Limiter<br/>Redis store"]
     PC[PaymentController]
     WC[WebhookController]
     PS[PaymentService]
