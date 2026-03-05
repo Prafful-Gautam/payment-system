@@ -1,0 +1,44 @@
+{
+  "name": "paymentflow",
+  "version": "1.0.0",
+  "description": "Multi-payment system with wallet support",
+  "main": "dist/server.js",
+  "module": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "migration:generate": "typeorm migration:generate",
+    "migration:run": "typeorm migration:run",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.10.0",
+    "joi": "^18.0.2",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.16.3",
+    "rate-limit-redis": "^4.3.1",
+    "razorpay": "^2.9.6",
+    "stripe": "^20.4.0",
+    "typeorm": "^0.3.28",
+    "typescript": "^5.9.3",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "tsc": "^2.0.4",
+    "tsx": "^4.21.0"
+  }
+}
