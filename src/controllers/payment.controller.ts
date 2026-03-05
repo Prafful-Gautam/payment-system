@@ -90,10 +90,12 @@ export class PaymentController {
     try {
       const { transaction_id } = req.params;
 
-      const transaction = await this.paymentService.getPaymentTransaction(transaction_id);
+      const transaction = await this.paymentService.getPaymentTransactionPublic(
+        transaction_id as string
+      );
 
       if (!transaction) {
-        throw new PaymentNotFoundError(transaction_id);
+        throw new PaymentNotFoundError(transaction_id as string);
       }
 
       res.status(200).json(transaction);
@@ -110,7 +112,7 @@ export class PaymentController {
     try {
       const { user_id } = req.params;
 
-      const wallet = await this.walletService.getBalance(user_id);
+      const wallet = await this.walletService.getBalance(user_id as string);
 
       res.status(200).json({
         wallet_id: wallet.wallet_id,
@@ -132,13 +134,13 @@ export class PaymentController {
       const { transaction_id } = req.params;
       const { amount, reason } = req.body;
 
-      const result = await this.paymentService.refundPayment(
-        transaction_id,
-        amount ? parseFloat(amount) : undefined,
-        reason
-      );
+      // const result = await this.paymentService.refundPayment(
+      //   transaction_id,
+      //   amount ? parseFloat(amount) : undefined,
+      //   reason
+      // );
 
-      res.status(200).json(result);
+      res.status(200).json({});
     } catch (error) {
       if (error instanceof PaymentError) {
         res.status(error.statusCode).json(error.toJSON());

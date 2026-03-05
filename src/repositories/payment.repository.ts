@@ -13,7 +13,7 @@ export class PaymentRepository {
     transactionId: string,
     manager?: EntityManager
   ): Promise<PaymentTransaction | null> {
-    const repo = this.getRepository(manager);
+    const repo = manager ? this.getRepository(manager) : this.getRepository();
     return await repo.findOne({ where: { transaction_id: transactionId } });
   }
 
@@ -33,14 +33,15 @@ export class PaymentRepository {
     data: Partial<PaymentTransaction>,
     manager?: EntityManager
   ): Promise<void> {
-    const repo = this.getRepository(manager);
+    const repo = manager ? this.getRepository(manager) : this.getRepository();
     await repo.update({ transaction_id: transactionId }, data);
   }
 
   async findByGatewayTransactionId(
-    gatewayTransactionId: string
+    gatewayTransactionId: string,
+    manager?: EntityManager
   ): Promise<PaymentTransaction | null> {
-    const repo = this.getRepository();
+    const repo = manager ? this.getRepository(manager) : this.getRepository();
     return await repo.findOne({ where: { gateway_transaction_id: gatewayTransactionId } });
   }
 }

@@ -8,21 +8,21 @@ export class AuditLog {
   @Column('uuid')
   transaction_id: string;
 
-  @Column({ length: 100 })
+  @Column({ type: 'string', length: 100 })
   event_type: string;
 
-  @Column({ length: 255 })
+  @Column({ type: 'string', length: 255 })
   actor: string;
 
   @Column('text')
   details: string;
 
-  @Column({ length: 45 })
+  @Column({ type: 'string', length: 45 })
   ip_address: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   timestamp: Date;
 
-  @Column({ length: 64 })
+  @Column({ type: 'string', length: 64 })
   hash: string;
 }

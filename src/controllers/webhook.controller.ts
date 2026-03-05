@@ -74,7 +74,7 @@ export class WebhookController {
     // Update transaction status
     const transaction = await this.paymentService.findByGatewayTransactionId(paymentIntent.id);
     if (transaction) {
-      await this.paymentService.updateIPaymentStatus({
+      await this.paymentService.updatePaymentStatus({
         transactionId: transaction.transaction_id,
         status: PaymentStatus.COMPLETED,
         gatewayTransactionId: paymentIntent.id,
@@ -107,7 +107,7 @@ export class WebhookController {
     // Rollback wallet deduction
     const transaction = await this.paymentService.findByGatewayTransactionId(paymentIntent.id);
     if (transaction) {
-      await this.paymentService.updateIPaymentStatus({
+      await this.paymentService.updatePaymentStatus({
         transactionId: transaction.transaction_id,
         status: PaymentStatus.FAILED,
         gatewayTransactionId: paymentIntent.id,
@@ -226,7 +226,7 @@ export class WebhookController {
     }
 
     // Update payment status to completed
-    await this.paymentService.updatePaymentStatus(transaction.transaction_id, 'completed');
+    await this.paymentService.updatePaymentStatusPublic(transaction.transaction_id, 'completed');
 
     // Log audit event
     await this.auditService.logPaymentEvent({
@@ -254,7 +254,7 @@ export class WebhookController {
     }
 
     // Update payment status to failed
-    await this.paymentService.updatePaymentStatus(transaction.transaction_id, 'failed');
+    await this.paymentService.updatePaymentStatusPublic(transaction.transaction_id, 'failed');
 
     // Log audit event
     await this.auditService.logPaymentEvent({

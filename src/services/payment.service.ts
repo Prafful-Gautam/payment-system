@@ -27,7 +27,7 @@ export class PaymentService {
 
       try {
         // Phase 1: Prepare - Hold wallet funds
-        const payment = await this.getIPaymentTransaction(transactionId, transactionManager);
+        const payment = await this.getPaymentTransaction(transactionId, transactionManager);
 
         if (payment.wallet_amount > 0) {
           walletHold = await this.walletService.holdAmount(
@@ -63,7 +63,7 @@ export class PaymentService {
         }
 
         // Update payment status
-        await this.updateIPaymentStatus(
+        await this.updatePaymentStatus(
           {
             transactionId: transactionId,
             status: PaymentStatus.COMPLETED,
@@ -87,7 +87,7 @@ export class PaymentService {
     });
   }
 
-  private async getIPaymentTransaction(
+  private async getPaymentTransaction(
     transactionId: string,
     manager: EntityManager
   ): Promise<PaymentTransaction> {
@@ -98,7 +98,7 @@ export class PaymentService {
     return payment;
   }
 
-  async updateIPaymentStatus(
+  async updatePaymentStatus(
     params: {
       transactionId: string;
       status: PaymentStatus | string;
@@ -202,24 +202,45 @@ export class PaymentService {
   }
 
   async findByGatewayTransactionId(
-    gatewayTransactionId: string
+    gatewayTransactionId: string,
+    manager?: EntityManager
   ): Promise<PaymentTransaction | null> {
-    return await this.paymentRepo.findByGatewayTransactionId(gatewayTransactionId);
+    return await this.paymentRepo.findByGatewayTransactionId(gatewayTransactionId, manager);
   }
 
-  async processRefund(transactionId: string, refundAmount: number): Promise<void> {
+  async processRefund(
+    transactionId: string,
+    refundAmount: number,
+    manager?: EntityManager
+  ): Promise<void> {
     // Update payment status and handle refund logic
-    await this.paymentRepo.update(transactionId, {
-      status: PaymentStatus.REFUNDED,
-      updated_at: new Date(),
-    });
+    await this.paymentRepo.update(
+      transactionId,
+      {
+        status: PaymentStatus.REFUNDED,
+        updated_at: new Date(),
+      },
+      manager
+    );
   }
 
-  async updatePaymentStatus(transactionId: string, status: string): Promise<void> {
+  async getPaymentTransactionPublic(transactionId: string): Promise<PaymentTransaction | null> {
+    return await this.paymentRepo.findById(transactionId);
+  }
+
+  async updatePaymentStatusPublic(
+    transactionId: string,
+    status: string,
+    manager?: EntityManager
+  ): Promise<void> {
     const paymentStatus = status as PaymentStatus;
-    await this.paymentRepo.update(transactionId, {
-      status: paymentStatus,
-      updated_at: new Date(),
-    });
+    await this.paymentRepo.update(
+      transactionId,
+      {
+        status: paymentStatus,
+        updated_at: new Date(),
+      },
+      manager
+    );
   }
 }
