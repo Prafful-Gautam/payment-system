@@ -51,7 +51,7 @@ flowchart TD
   PaySvc -->|read balance optional| WalSvc
   WalSvc -->|SELECT wallet| MySQL
   PaySvc -->|create transaction| MySQL
-  PaySvc -->|createPaymentIntent if gateway_amount > 0| GF
+  PaySvc -->|createPaymentIntent| GF
   GF --> SA
   GF --> RA
   SA --> Stripe
@@ -60,7 +60,6 @@ flowchart TD
   Client -->|POST /payments/process| Routes
   PC -->|processMixedPayment| PaySvc
   PaySvc -->|holdAmount if wallet_amount > 0| WalSvc
-  PaySvc -->|charge| GF
   PaySvc -->|commit wallet hold| WalSvc
   WalSvc -->|UPDATE wallet + INSERT wallet_txn| MySQL
   PaySvc -->|UPDATE payment status| MySQL
