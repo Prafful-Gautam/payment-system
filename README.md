@@ -20,21 +20,21 @@ flowchart TD
   Razorpay[Razorpay]
 
   %% Edge
-  Nginx[Nginx (optional)]
+  Nginx["Nginx (optional)"]
 
   %% Payment service internals
-  subgraph SVC[Payment Service (Express)]
-    Routes["Routes<br/>/api/v1/payments<br/>/api/v1/wallet<br/>/webhooks"]
-    Auth["Auth Middleware<br/>JWT Bearer"]
-    RL["Rate Limiter<br/>Redis store"]
+  subgraph SVC[Payment Service Express]
+    Routes["Routes/api/v1/payments/api/v1/wallet/webhooks"]
+    Auth["Auth MiddlewareJWT Bearer"]
+    RL["Rate LimiterRedis store"]
     PC[PaymentController]
     WC[WebhookController]
-    PS[PaymentService]
-    WS[WalletService]
+    PaySvc[PaymentService]
+    WalSvc[WalletService]
     GF[GatewayFactory]
     SA[StripeGatewayAdapter]
     RA[RazorpayGatewayAdapter]
-    AS[AuditService]
+    AuditSvc[AuditService]
   end
 
   %% Infra
@@ -43,37 +43,38 @@ flowchart TD
     Redis[(Redis)]
   end
 
-  %% Typical request path (initiate + process)
+  %% Typical request path initiate + process
   Client -->|HTTPS| Nginx --> Routes
   Routes --> Auth --> RL
   RL --> PC
-  PC -->|initiatePayment| PS
-  PS -->|read balance (optional)| WS
-  WS -->|SELECT wallet| MySQL
-  PS -->|create transaction| MySQL
-  PS -->|createPaymentIntent (if gateway_amount > 0)| GF
+  PC -->|initiatePayment| PaySvc
+  PaySvc -->|read balance optional| WalSvc
+  WalSvc -->|SELECT wallet| MySQL
+  PaySvc -->|create transaction| MySQL
+  PaySvc -->|createPaymentIntent if gateway_amount > 0| GF
   GF --> SA
   GF --> RA
   SA --> Stripe
   RA --> Razorpay
 
   Client -->|POST /payments/process| Routes
-  PC -->|processMixedPayment| PS
-  PS -->|holdAmount (if wallet_amount > 0)| WS
-  PS -->|charge| GF
-  PS -->|commit wallet hold| WS
-  WS -->|UPDATE wallet + INSERT wallet_txn| MySQL
-  PS -->|UPDATE payment status| MySQL
+  PC -->|processMixedPayment| PaySvc
+  PaySvc -->|holdAmount if wallet_amount > 0| WalSvc
+  PaySvc -->|charge| GF
+  PaySvc -->|commit wallet hold| WalSvc
+  WalSvc -->|UPDATE wallet + INSERT wallet_txn| MySQL
+  PaySvc -->|UPDATE payment status| MySQL
 
-  %% Webhooks (async status updates)
+  %% Webhooks async status updates
   Stripe -->|POST /webhooks/stripe| Routes --> WC
   Razorpay -->|POST /webhooks/razorpay| Routes --> WC
   WC -->|verify signature| WC
-  WC -->|updatePaymentStatus / processRefund| PS --> MySQL
-  WC -->|logPaymentEvent| AS --> MySQL
+  WC -->|updatePaymentStatus / processRefund| PaySvc --> MySQL
+  WC -->|logPaymentEvent| AuditSvc --> MySQL
 
   %% Rate limiter storage
-  RL <-->|INCR/EXPIRE| Redis
+  RL -->|"INCR / EXPIRE"| Redis
+  Redis -->|counter| RL
 ```
 
 ## API overview
@@ -184,4 +185,3 @@ docker compose up --build
 - `npm test`: run Jest
 - `npm run lint`: ESLint
 - `npm run format`: Prettier
-
